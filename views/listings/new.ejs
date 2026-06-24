@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domus</title>
+</head>
+<body>
+    <h3>Create New Listing</h3>
+
+    <form method="POST" action="/listings">
+        <label for="title">Title</label>
+        <input type="text" name="listing[title]" id="title" placeholder="Enter title">
+        <br> <br>
+        <label for="description">Description</label>
+        <textarea type="text" name="listing[description]" id="description" placeholder="Enter description"></textarea>
+        <br><br>
+        <label for="image">Image</label>
+        <input type="text" name="listing[image]" id="image" placeholder="Enter image URL">
+        <br> <br>
+        <label for="price">Price</label>
+        <input type="number" name="listing[price]" id="price" placeholder="Enter price">
+        <br><br>
+        <label for="location">Location</label>
+        <input type="text" name="listing[location]" id="location" placeholder="Enter location">
+        <br><br>
+        <label for="country">Country</label>
+        <input type="text" name="listing[country]" id="country" placeholder="Enter country">
+        <br>
+        <button>Add Listing</button>
+
+    </form>
+</body>
+</html>
