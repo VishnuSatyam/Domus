@@ -1,5 +1,6 @@
 body{
-    background-color: rgb(237, 231, 232);
+    font-family: "Plus Jakarta Sans", sans-serif !important;
+
 }
 
 .navbar{
@@ -47,4 +48,41 @@ body{
     justify-content: center;
     align-content: space-evenly;
     text-align: center;
+}
+
+/* //cards  */
+
+.card{
+    border:none !important;
+    margin-bottom: 2rem;
+
+}
+
+.card-img{
+    border-radius: 1rem !important;
+    width: 100% !important;
+    object-fit: cover !important;
+}
+
+.card-body{
+    padding: 0px !important;
+}
+
+.card-text{
+    font-weight: 400;
+}
+
+.listing-link{
+    text-decoration: none;
+}
+
+/* card effect */
+
+.card-img-overlay{
+    opacity: 0;
+}
+
+.card-img-overlay:hover{
+    opacity: 0.2;
+    background-color:rgb(232, 199, 199);
 }
