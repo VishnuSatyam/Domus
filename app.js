@@ -30,7 +30,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
 
-
 const validateListing = (req, res, next) => {
   const { error } = listingSchema.validate(req.body.listing, {
     abortEarly: false,
@@ -41,8 +40,6 @@ const validateListing = (req, res, next) => {
   }
   next();
 };
-
-
 
 app.get("/", (req, res) => {
   res.send("root is working");
@@ -95,7 +92,7 @@ app.get("/listings/:id/edit", async (req, res) => {
 
 // update route
 
-app.put("/listings/:id" , validateListing, async (req, res) => {
+app.put("/listings/:id", validateListing, async (req, res) => {
   let { id } = req.params;
   await Listing.findByIdAndUpdate(id, { ...req.body.listing });
   res.redirect(`/listings/${id}`);

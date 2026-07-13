@@ -13,7 +13,7 @@
       />
 
       <div class="card-body">
-        <p class="card-text"><b>Description:</b> <%= listing.description %></p>
+        <p class="card-text"><%= listing.description %></p>
 
         <p class="card-text">
           <b>Price:</b> &#8377;<%= listing.price.toLocaleString("en-IN")
@@ -35,5 +35,34 @@
         <button class="btn btn-danger">Delete</button>
       </form>
     </div>
+  </div>
+
+  <div class="col-8 offset-3">
+    <hr />
+    <h4>Leave a Review</h4>
+    <form action="" class="mb-3">
+      <div class="mb-3 mt-3">
+        <label for="rating" class="form-label">Rating</label>
+        <input
+          type="range"
+          man="1"
+          max="5"
+          name="review[rating]"
+          class="form-range"
+        />
+      </div>
+
+      <div class="bb-3 mt-3">
+        <label for="comment" class="form-label">Comments</label>
+        <textarea
+          name="review[comment]"
+          id="comment"
+          cols="30"
+          rows="5"
+        ></textarea>
+      </div>
+
+      <button class="btn btn-outline-dark">Submit</button>
+    </form>
   </div>
 </div>
