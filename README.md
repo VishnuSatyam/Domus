@@ -1,6 +1,6 @@
 # 🏡 Domus
 
-Domus (Latin for *"home"*) is a full-stack travel accommodation platform where users can discover, list, and review unique places to stay — think of it as a lightweight Airbnb clone built with Node.js, Express, and MongoDB.
+Domus (Latin for "home") is a full-stack web application that connects travelers with unique accommodations through property listings, reviews, and an intuitive booking-inspired experience.
 
 ## ✨ Features
 
