@@ -9,7 +9,8 @@ const ejsMate = require("ejs-mate");
 app.engine("ejs", ejsMate);
 
 const ExpressError = require("./utils/ExpressError.js");
-const { listingSchema } = require("./schema.js");
+const { listingSchema, reviewSchema } = require("./schema.js");
+const Review = require("./models/review.js");
 
 main()
   .then(() => {
@@ -31,7 +32,18 @@ app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
 
 const validateListing = (req, res, next) => {
-  const { error } = listingSchema.validate(req.body.listing, {
+  const { error } = listingSchema.validate(req.body, {
+    abortEarly: false,
+  });
+  if (error) {
+    let msg = error.details.map((el) => el.message).join(",");
+    throw new ExpressError(msg, 400);
+  }
+  next();
+};
+
+const validateReview = (req, res, next) => {
+  const { error } = reviewSchema.validate(req.body, {
     abortEarly: false,
   });
   if (error) {
@@ -65,7 +77,7 @@ app.get("/listings/:id", async (req, res) => {
     throw new ExpressError("Page Not Found", 404);
   }
 
-  const listing = await Listing.findById(id);
+  const listing = await Listing.findById(id).populate("reviews");
 
   // Check if a listing with this ID exists
   if (!listing) {
@@ -99,10 +111,52 @@ app.put("/listings/:id", validateListing, async (req, res) => {
 });
 
 // delete route
-app.delete("/listings/:id", validateListing, async (req, res) => {
+app.delete("/listings/:id", async (req, res) => {
   let { id } = req.params;
   await Listing.findByIdAndDelete(id);
   res.redirect("/listings");
+});
+
+// reviews post route
+
+app.post("/listings/:id/reviews", validateReview, async (req, res) => {
+  const listing = await Listing.findById(req.params.id);
+  if (!listing) {
+    throw new ExpressError("Listing not found", 404);
+  }
+
+  const newReview = new Review(req.body.review);
+
+  listing.reviews.push(newReview);
+  await newReview.save();
+  await listing.save();
+
+  res.redirect(`/listings/${listing._id}`);
+});
+
+// delete a single review from a listing
+app.delete("/listings/:id/reviews/:reviewId", async (req, res) => {
+  const { id, reviewId } = req.params;
+
+  if (
+    !mongoose.Types.ObjectId.isValid(id) ||
+    !mongoose.Types.ObjectId.isValid(reviewId)
+  ) {
+    throw new ExpressError("Review not found", 404);
+  }
+
+  const listing = await Listing.findOneAndUpdate(
+    { _id: id, reviews: reviewId },
+    { $pull: { reviews: reviewId } },
+    { new: true }
+  );
+
+  if (!listing) {
+    throw new ExpressError("Review not found for this listing", 404);
+  }
+
+  await Review.findByIdAndDelete(reviewId);
+  res.redirect(`/listings/${id}`);
 });
 
 // app.get("/testListing" , async(req , res)=>{
