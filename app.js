@@ -1,7 +1,6 @@
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
-const Listing = require("./models/listing.js");
 const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
@@ -9,8 +8,11 @@ const ejsMate = require("ejs-mate");
 app.engine("ejs", ejsMate);
 
 const ExpressError = require("./utils/ExpressError.js");
-const { listingSchema, reviewSchema } = require("./schema.js");
-const Review = require("./models/review.js");
+const session = require("express-session");
+const flash = require("connect-flash");
+
+const listings = require("./routes/listing.js");
+const reviews = require("./routes/review.js");
 
 main()
   .then(() => {
@@ -31,133 +33,33 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
 
-const validateListing = (req, res, next) => {
-  const { error } = listingSchema.validate(req.body, {
-    abortEarly: false,
-  });
-  if (error) {
-    let msg = error.details.map((el) => el.message).join(",");
-    throw new ExpressError(msg, 400);
-  }
-  next();
-};
-
-const validateReview = (req, res, next) => {
-  const { error } = reviewSchema.validate(req.body, {
-    abortEarly: false,
-  });
-  if (error) {
-    let msg = error.details.map((el) => el.message).join(",");
-    throw new ExpressError(msg, 400);
-  }
-  next();
+const sessionOptions = {
+  secret: "mysupersecret",
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    httpOnly: true,
+  },
 };
 
 app.get("/", (req, res) => {
   res.send("root is working");
 });
 
-app.get("/listings", async (req, res) => {
-  const allListings = await Listing.find({});
-  res.render("listings/index", { allListings });
+
+app.use(session(sessionOptions));
+app.use(flash());
+
+app.use((req, res, next) => {
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  next();
 });
 
-// new route
-
-app.get("/listings/new", (req, res) => {
-  res.render("listings/new");
-});
-
-// show route
-app.get("/listings/:id", async (req, res) => {
-  const { id } = req.params;
-
-  // Check if the ID is a valid MongoDB ObjectId
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    throw new ExpressError("Page Not Found", 404);
-  }
-
-  const listing = await Listing.findById(id).populate("reviews");
-
-  // Check if a listing with this ID exists
-  if (!listing) {
-    throw new ExpressError("Page Not Found", 404);
-  }
-
-  res.render("listings/show", { listing });
-});
-
-// create route
-app.post("/listings", validateListing, async (req, res) => {
-  const newListing = new Listing(req.body.listing);
-  await newListing.save();
-
-  res.redirect(`/listings/${newListing._id}`);
-});
-
-// edit route
-app.get("/listings/:id/edit", async (req, res) => {
-  const { id } = req.params;
-  const listing = await Listing.findById(id);
-  res.render("listings/edit", { listing });
-});
-
-// update route
-
-app.put("/listings/:id", validateListing, async (req, res) => {
-  let { id } = req.params;
-  await Listing.findByIdAndUpdate(id, { ...req.body.listing });
-  res.redirect(`/listings/${id}`);
-});
-
-// delete route
-app.delete("/listings/:id", async (req, res) => {
-  let { id } = req.params;
-  await Listing.findByIdAndDelete(id);
-  res.redirect("/listings");
-});
-
-// reviews post route
-
-app.post("/listings/:id/reviews", validateReview, async (req, res) => {
-  const listing = await Listing.findById(req.params.id);
-  if (!listing) {
-    throw new ExpressError("Listing not found", 404);
-  }
-
-  const newReview = new Review(req.body.review);
-
-  listing.reviews.push(newReview);
-  await newReview.save();
-  await listing.save();
-
-  res.redirect(`/listings/${listing._id}`);
-});
-
-// delete a single review from a listing
-app.delete("/listings/:id/reviews/:reviewId", async (req, res) => {
-  const { id, reviewId } = req.params;
-
-  if (
-    !mongoose.Types.ObjectId.isValid(id) ||
-    !mongoose.Types.ObjectId.isValid(reviewId)
-  ) {
-    throw new ExpressError("Review not found", 404);
-  }
-
-  const listing = await Listing.findOneAndUpdate(
-    { _id: id, reviews: reviewId },
-    { $pull: { reviews: reviewId } },
-    { new: true }
-  );
-
-  if (!listing) {
-    throw new ExpressError("Review not found for this listing", 404);
-  }
-
-  await Review.findByIdAndDelete(reviewId);
-  res.redirect(`/listings/${id}`);
-});
+app.use("/listings", listings);
+app.use("/listings", reviews);
 
 // app.get("/testListing" , async(req , res)=>{
 //     let sampleListing = new Listing({
