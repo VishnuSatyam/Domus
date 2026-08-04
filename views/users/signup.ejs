@@ -1,0 +1,43 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="row mt-4">
+  <div class="col-md-6 offset-md-3">
+    <h3>Sign up for Domus</h3>
+
+    <form action="/signup" method="POST" class="needs-validation" novalidate>
+      <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input
+          type="text"
+          class="form-control"
+          id="username"
+          name="username"
+          minlength="3"
+          required
+        />
+        <div class="invalid-feedback">Please choose a username of at least 3 characters.</div>
+      </div>
+
+      <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" name="email" required />
+        <div class="invalid-feedback">Please enter a valid email address.</div>
+      </div>
+
+      <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input
+          type="password"
+          class="form-control"
+          id="password"
+          name="password"
+          minlength="6"
+          required
+        />
+        <div class="invalid-feedback">Please choose a password of at least 6 characters.</div>
+      </div>
+
+      <button class="btn btn-dark mb-4">Sign up</button>
+    </form>
+  </div>
+</div>
