@@ -4,6 +4,9 @@ const { listingSchema } = require("../schema.js");
 const ExpressError = require("../utils/ExpressError.js");
 const {isLoggedIn, isOwner} = require("../middleware.js");
 const listingController = require("../controllers/listing.js");
+const multer  = require('multer')
+const { storage } = require("../cloudconfig.js");
+const upload = multer({ storage: storage });
 
 const validateListing = (req, res, next) => {
   const { error } = listingSchema.validate(req.body, {
@@ -16,14 +19,15 @@ const validateListing = (req, res, next) => {
   next();
 };
 
-router.route("/")
+router
+  .route("/")
   .get(listingController.index)
   .post(
     isLoggedIn("You must be logged in to create a listing!"),
+    upload.single("listing[image]"),
     validateListing,
-    listingController.createListing,
+    listingController.createListing
   );
-
 // new route
 
 router.get(

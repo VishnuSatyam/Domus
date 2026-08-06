@@ -61,9 +61,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-family: "Font Awesome 7 Free";
-  font-size: 1.75rem;
-  font-weight: 900;
+  /* Collapse the label's own (invisible, a11y-only) text so it can't
+     affect this box's width — width now comes ONLY from ::before below,
+     which matches the star glyphs drawn by .starability-slot::after. */
+  font-size: 0;
   line-height: 1;
   position: relative;
   z-index: 2;
@@ -72,6 +73,9 @@
 
 .starability-slot > label::before {
   content: "\f005";
+  font-family: "Font Awesome 7 Free";
+  font-size: 1.75rem;
+  font-weight: 900;
 }
 
 .starability-slot::after {
@@ -129,7 +133,7 @@
   pointer-events: none;
 }
 
-.starability-slot:has(input:focus) .starability-focus-ring {
+.starability-slot:has(input:focus-visible) .starability-focus-ring {
   outline: 2px dotted #999;
   outline-offset: 2px;
 }

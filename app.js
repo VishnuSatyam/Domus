@@ -1,9 +1,15 @@
+if(process.env.NODE_ENV !== "production") {
+    require("dotenv").config();
+}
+
+console.log(process.env.SECRET)
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
+
 
 app.engine("ejs", ejsMate);
 
@@ -78,7 +84,7 @@ app.use("/", userRouter);
 //         title: "My New Vila",
 //         description: "By the beach",
 //         price: 1200,
-//         location: "Calangute , Goa",
+//         location: "Calangute , Goa", 
 //         country: "India",
 //     });
 //     await sampleListing.save();
