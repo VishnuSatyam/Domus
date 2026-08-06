@@ -1,0 +1,135 @@
+.starability-result {
+  --rating: 0;
+  display: inline-block;
+  font-family: "Font Awesome 7 Free";
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: 0.1rem;
+  line-height: 1;
+  background: linear-gradient(
+    90deg,
+    #f6be00 calc(var(--rating) * 20%),
+    #999 calc(var(--rating) * 20%)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.starability-result::before {
+  content: "\f005\f005\f005\f005\f005";
+}
+
+.starability-result[data-rating="1"] {
+  --rating: 1;
+}
+.starability-result[data-rating="2"] {
+  --rating: 2;
+}
+.starability-result[data-rating="3"] {
+  --rating: 3;
+}
+.starability-result[data-rating="4"] {
+  --rating: 4;
+}
+.starability-result[data-rating="5"] {
+  --rating: 5;
+}
+
+.starability-slot {
+  --rating: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.15rem;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  width: auto;
+}
+
+.starability-slot > input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.starability-slot > label {
+  color: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Font Awesome 7 Free";
+  font-size: 1.75rem;
+  font-weight: 900;
+  line-height: 1;
+  position: relative;
+  z-index: 2;
+  user-select: none;
+}
+
+.starability-slot > label::before {
+  content: "\f005";
+}
+
+.starability-slot::after {
+  content: "\f005\f005\f005\f005\f005";
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-family: "Font Awesome 7 Free";
+  font-size: 1.75rem;
+  font-weight: 900;
+  letter-spacing: 0.1rem;
+  line-height: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    #f6be00 calc(var(--rating) * 20%),
+    #999 calc(var(--rating) * 20%)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.starability-slot:has(input[value="1"]:checked) {
+  --rating: 1;
+}
+.starability-slot:has(input[value="2"]:checked) {
+  --rating: 2;
+}
+.starability-slot:has(input[value="3"]:checked) {
+  --rating: 3;
+}
+.starability-slot:has(input[value="4"]:checked) {
+  --rating: 4;
+}
+.starability-slot:has(input[value="5"]:checked) {
+  --rating: 5;
+}
+
+.starability-slot > legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.starability-focus-ring {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.starability-slot:has(input:focus) .starability-focus-ring {
+  outline: 2px dotted #999;
+  outline-offset: 2px;
+}
