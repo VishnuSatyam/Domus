@@ -41,6 +41,7 @@ router.route("/:id")
   .put(
     isLoggedIn("You must be logged in to edit a listing!"),
     isOwner,
+    upload.single("listing[image]"),
     validateListing,
     listingController.updateListing,
   )

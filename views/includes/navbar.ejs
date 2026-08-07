@@ -1,35 +1,56 @@
-<nav class="navbar navbar-expand-md bg-body-light border-bottom">
-    <div class="container-fluid">
+<header class="site-header border-bottom">
+  <nav class="navbar navbar-expand-lg">
+    <div class="container-fluid header-top">
+      <a class="navbar-brand brand-link" href="/listings" aria-label="Domus listings">
+        <i class="bi bi-house-heart-fill" aria-hidden="true"></i>
+        <span>domus</span>
+      </a>
 
-        <a class="navbar-brand" href="/">
-            <i class="fa-regular fa-compass"></i>
-        </a>
+      <div class="header-categories d-none d-lg-flex" aria-label="Explore categories">
+        <a class="category-link active" href="/listings"><i class="bi bi-globe2"></i><span>All</span></a>
+        <span class="category-link"><i class="bi bi-house-door"></i><span>Homes</span></span>
+        <span class="category-link"><i class="bi bi-balloon-heart"></i><span>Experiences</span></span>
+        <span class="category-link"><i class="bi bi-bell"></i><span>Services</span></span>
+      </div>
 
-        <button
-            class="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarNavAltMarkup"
-        >
-            <span class="navbar-toggler-icon"></span>
-        </button>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarNavAltMarkup"
+        aria-controls="navbarNavAltMarkup"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <i class="bi bi-list"></i>
+      </button>
 
-        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-            <div class="navbar-nav">
-                <a class="nav-link" href="/">Home</a>
-                <a class="nav-link" href="/listings">All Listings</a>
-                <a class="nav-link" href="/listings/new">Add New Listing</a>
-            </div>
-
-            <div class="navbar-nav ms-auto">
-                <% if (!currUser) { %>
-                <a class="nav-link" href="/signup">Sign up</a>
-                <a class="nav-link" href="/login">Log in</a>
-                <% } else { %>
-                <a class="nav-link" href="/logout">Log out</a>
-                <% } %>
-            </div>
+      <div class="collapse navbar-collapse header-links" id="navbarNavAltMarkup">
+        <div class="navbar-nav ms-lg-auto align-items-lg-center">
+          <a class="nav-link" href="/listings/new">Add New Listing</a>
+          <a class="nav-link" href="/listings">All Listings</a>
+          <% if (!currUser) { %>
+          <a class="nav-link auth-link" href="/signup">Sign up</a>
+          <a class="nav-link auth-link" href="/login">Log in</a>
+          <% } else { %>
+          <a class="nav-link auth-link" href="/logout">Log out</a>
+          <% } %>
+          <span class="header-icon d-none d-lg-inline-flex"><i class="bi bi-globe2"></i></span>
         </div>
-
+      </div>
     </div>
-</nav>
+
+    <div class="container-fluid d-lg-none mobile-categories">
+      <a class="category-link active" href="/listings"><i class="bi bi-globe2"></i><span>All</span></a>
+      <span class="category-link"><i class="bi bi-house-door"></i><span>Homes</span></span>
+      <span class="category-link"><i class="bi bi-balloon-heart"></i><span>Experiences</span></span>
+    </div>
+
+    <form class="header-search" role="search" action="/listings" method="GET">
+      <label class="search-field"><span>Where</span><input type="search" name="q" placeholder="Search destinations" aria-label="Where" /></label>
+      <label class="search-field d-none d-sm-flex"><span>When</span><input type="text" placeholder="Add dates" aria-label="When" /></label>
+      <label class="search-field d-none d-md-flex"><span>Who</span><input type="text" placeholder="Add guests" aria-label="Who" /></label>
+      <button class="search-button" type="submit" aria-label="Search listings"><i class="bi bi-search"></i></button>
+    </form>
+  </nav>
+</header>

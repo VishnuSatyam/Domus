@@ -1,8 +1,6 @@
-if(process.env.NODE_ENV !== "production") {
-    require("dotenv").config();
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
 }
-
-console.log(process.env.SECRET)
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
@@ -10,11 +8,11 @@ const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 
-
 app.engine("ejs", ejsMate);
 
 const ExpressError = require("./utils/ExpressError.js");
 const session = require("express-session");
+const { MongoStore } = require("connect-mongo");
 const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
@@ -24,17 +22,20 @@ const listingRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
 
+const dns = require("dns");
+dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
+const dbUrl = process.env.ATLASDB_URL;
 main()
   .then(() => {
     console.log("connected to DB");
   })
   .catch((err) => {
-    console.log(err);
+    console.log(err);  
   });
 
 async function main() {
-  await mongoose.connect("mongodb://127.0.0.1:27017/wanderlust");
+  await mongoose.connect(dbUrl);
 }
 
 app.set("view engine", "ejs");
@@ -44,7 +45,20 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
 
+const store = MongoStore.create({
+  mongoUrl: dbUrl,
+  touchAfter: 24 * 60 * 60,
+  crypto: {
+    secret: "mysupersecret",
+  },
+});
+
+store.on("error", function (e) {
+  console.log("SESSION STORE ERROR", e);
+});
+
 const sessionOptions = {
+  store: store,
   secret: "mysupersecret",
   resave: false,
   saveUninitialized: true,
@@ -55,11 +69,13 @@ const sessionOptions = {
   },
 };
 
-app.get("/", (req, res) => {
-  res.send("root is working");
-});
+// app.get("/", (req, res) => {
+//   res.send("root is working");
+// });
 
-app.use(session(sessionOptions));
+
+
+app.use(session({ ...sessionOptions, store }));
 app.use(flash());
 
 app.use(passport.initialize());
@@ -84,7 +100,7 @@ app.use("/", userRouter);
 //         title: "My New Vila",
 //         description: "By the beach",
 //         price: 1200,
-//         location: "Calangute , Goa", 
+//         location: "Calangute , Goa",
 //         country: "India",
 //     });
 //     await sampleListing.save();
