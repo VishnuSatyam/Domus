@@ -155,6 +155,15 @@ body{
     font-size: .92rem;
 }
 
+.date-inputs {
+    display: flex;
+    gap: .35rem;
+}
+
+.date-inputs input {
+    min-width: 0;
+}
+
 .search-button {
     width: 3.15rem;
     height: 3.15rem;
@@ -300,4 +309,8 @@ body{
 
 .show-img {
     border-radius: 20px !important;
+}
+
+.f-info-social a {
+    color: #222222;
 }

@@ -33,7 +33,7 @@ module.exports.destroyReview = async (req, res) => {
   const listing = await Listing.findOneAndUpdate(
     { _id: id, reviews: reviewId },
     { $pull: { reviews: reviewId } },
-    { new: true },
+    { returnDocument: "after" },
   );
 
   if (!listing) {

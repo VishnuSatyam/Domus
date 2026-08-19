@@ -6,14 +6,17 @@ const { isLoggedIn, isReviewAuthor } = require("../middleware.js");
 const reviewsController = require("../controllers/reviews.js");
 
 const validateReview = (req, res, next) => {
-  const { error } = reviewSchema.validate(req.body, {
+  const { error, value } = reviewSchema.validate(req.body, {
     abortEarly: false,
+    convert: true,
   });
 
   if (error) {
     let msg = error.details.map((el) => el.message).join(",");
     throw new ExpressError(msg, 400);
   }
+
+  req.body = value;
 
   next();
 };

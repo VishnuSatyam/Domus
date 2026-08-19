@@ -95,6 +95,15 @@
         <div class="invalid-feedback">Please enter a location.</div>
       </div>
 
+      <div class="mb-3">
+        <label for="category" class="form-label">Listing type</label>
+        <select name="listing[category]" id="category" class="form-select" required>
+          <option value="home" <%= listing.category === 'home' ? 'selected' : '' %>>Home</option>
+          <option value="experience" <%= listing.category === 'experience' ? 'selected' : '' %>>Experience</option>
+          <option value="service" <%= listing.category === 'service' ? 'selected' : '' %>>Service</option>
+        </select>
+      </div>
+
       <button class="btn btn-dark edit-btn mt-3 mb-5">Edit</button>
     </form>
   </div>

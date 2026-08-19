@@ -1,9 +1,13 @@
 const mongoose = require("mongoose");
 const Listing = require("../models/listing.js");
 const User = require("../models/user.js");
+const { requireDatabaseUrl } = require("./config.js");
 
 async function backfillListingOwners() {
-  await mongoose.connect("mongodb://127.0.0.1:27017/wanderlust");
+  if (process.env.CONFIRM_LISTING_OWNER_BACKFILL !== "true") {
+    throw new Error("Set CONFIRM_LISTING_OWNER_BACKFILL=true to run this migration.");
+  }
+  await mongoose.connect(requireDatabaseUrl());
 
   const user = await User.findOne().select("_id username");
   if (!user) {

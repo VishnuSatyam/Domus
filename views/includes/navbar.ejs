@@ -7,10 +7,10 @@
       </a>
 
       <div class="header-categories d-none d-lg-flex" aria-label="Explore categories">
-        <a class="category-link active" href="/listings"><i class="bi bi-globe2"></i><span>All</span></a>
-        <span class="category-link"><i class="bi bi-house-door"></i><span>Homes</span></span>
-        <span class="category-link"><i class="bi bi-balloon-heart"></i><span>Experiences</span></span>
-        <span class="category-link"><i class="bi bi-bell"></i><span>Services</span></span>
+        <a class="category-link <%= !activeCategory || activeCategory === 'all' ? 'active' : '' %>" href="/listings"><i class="bi bi-globe2"></i><span>All</span></a>
+        <a class="category-link <%= activeCategory === 'home' ? 'active' : '' %>" href="/listings?category=home"><i class="bi bi-house-door"></i><span>Homes</span></a>
+        <a class="category-link <%= activeCategory === 'experience' ? 'active' : '' %>" href="/listings?category=experience"><i class="bi bi-balloon-heart"></i><span>Experiences</span></a>
+        <a class="category-link <%= activeCategory === 'service' ? 'active' : '' %>" href="/listings?category=service"><i class="bi bi-bell"></i><span>Services</span></a>
       </div>
 
       <button
@@ -41,15 +41,16 @@
     </div>
 
     <div class="container-fluid d-lg-none mobile-categories">
-      <a class="category-link active" href="/listings"><i class="bi bi-globe2"></i><span>All</span></a>
-      <span class="category-link"><i class="bi bi-house-door"></i><span>Homes</span></span>
-      <span class="category-link"><i class="bi bi-balloon-heart"></i><span>Experiences</span></span>
+      <a class="category-link <%= !activeCategory || activeCategory === 'all' ? 'active' : '' %>" href="/listings"><i class="bi bi-globe2"></i><span>All</span></a>
+      <a class="category-link <%= activeCategory === 'home' ? 'active' : '' %>" href="/listings?category=home"><i class="bi bi-house-door"></i><span>Homes</span></a>
+      <a class="category-link <%= activeCategory === 'experience' ? 'active' : '' %>" href="/listings?category=experience"><i class="bi bi-balloon-heart"></i><span>Experiences</span></a>
+      <a class="category-link <%= activeCategory === 'service' ? 'active' : '' %>" href="/listings?category=service"><i class="bi bi-bell"></i><span>Services</span></a>
     </div>
 
     <form class="header-search" role="search" action="/listings" method="GET">
-      <label class="search-field"><span>Where</span><input type="search" name="q" placeholder="Search destinations" aria-label="Where" /></label>
-      <label class="search-field d-none d-sm-flex"><span>When</span><input type="text" placeholder="Add dates" aria-label="When" /></label>
-      <label class="search-field d-none d-md-flex"><span>Who</span><input type="text" placeholder="Add guests" aria-label="Who" /></label>
+      <label class="search-field"><span>Where</span><input type="search" name="where" value="<%= typeof search !== 'undefined' ? search.where : '' %>" placeholder="Search destinations" aria-label="Search destination" /></label>
+      <label class="search-field d-none d-sm-flex"><span>When</span><span class="date-inputs"><input type="date" name="startDate" value="<%= typeof search !== 'undefined' ? search.startDate : '' %>" aria-label="Check-in date" /><input type="date" name="endDate" value="<%= typeof search !== 'undefined' ? search.endDate : '' %>" aria-label="Check-out date" /></span></label>
+      <label class="search-field d-none d-md-flex"><span>Who</span><input type="number" name="guests" min="1" max="30" value="<%= typeof search !== 'undefined' ? search.guests : '' %>" placeholder="Add guests" aria-label="Number of guests" /></label>
       <button class="search-button" type="submit" aria-label="Search listings"><i class="bi bi-search"></i></button>
     </form>
   </nav>

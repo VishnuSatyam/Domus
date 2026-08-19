@@ -1,6 +1,3 @@
-if (process.env.NODE_ENV !== "production") {
-  require("dotenv").config();
-}
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
@@ -17,26 +14,12 @@ const flash = require("connect-flash");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
+const { requireDatabaseUrl, requireSessionSecret } = require("./utils/config.js");
+const { deleteImage } = require("./utils/cloudinary.js");
 
 const listingRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
-
-const dns = require("dns");
-dns.setServers(["1.1.1.1", "8.8.8.8"]);
-
-const dbUrl = process.env.ATLASDB_URL;
-main()
-  .then(() => {
-    console.log("connected to DB");
-  })
-  .catch((err) => {
-    console.log(err);  
-  });
-
-async function main() {
-  await mongoose.connect(dbUrl);
-}
 
 app.set("view engine", "ejs");
 
@@ -46,28 +29,33 @@ app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
 
 const store = MongoStore.create({
-  mongoUrl: dbUrl,
+  mongoUrl: requireDatabaseUrl(),
   touchAfter: 24 * 60 * 60,
   crypto: {
-    secret: process.env.SECRET,
+    secret: requireSessionSecret(),
   },
 });
 
-store.on("error", function (e) {
-  console.log("SESSION STORE ERROR", e);
+store.on("error", function () {
+  // connect-mongo exposes errors here; avoid logging session data or credentials.
+  console.error("Session store error");
 });
+app.locals.sessionStore = store;
 
 const sessionOptions = {
   store: store,
-  secret: process.env.SECRET,
+  secret: requireSessionSecret(),
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: {
-    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
   },
 };
+
+if (process.env.NODE_ENV === "production") app.set("trust proxy", 1);
 
 app.get("/", (req, res) => {
     res.redirect("/listings");
@@ -88,6 +76,8 @@ app.use((req, res, next) => {
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
   res.locals.currUser = req.user;
+  // The shared navbar renders on every page; the listings index overrides this.
+  res.locals.activeCategory = "all";
   next();
 });
 
@@ -95,30 +85,47 @@ app.use("/listings", listingRouter);
 app.use("/listings", reviewRouter);
 app.use("/", userRouter);
 
-// app.get("/testListing" , async(req , res)=>{
-//     let sampleListing = new Listing({
-//         title: "My New Vila",
-//         description: "By the beach",
-//         price: 1200,
-//         location: "Calangute , Goa",
-//         country: "India",
-//     });
-//     await sampleListing.save();
-//     console.log("sample was saved");
-//     res.send("successful testing");
-// });
-
 app.all("/*splat", (req, res, next) => {
   next(new ExpressError("Page Not Found", 404));
 });
 
 // error handling middleware
 app.use((err, req, res, next) => {
-  const { statusCode = 500 } = err;
-  if (!err.message) err.message = "Oh No, Something Went Wrong!";
-  res.status(statusCode).render("error", { err });
+  if (req.file && !req.uploadCommitted) {
+    deleteImage({ publicId: req.file.filename }).catch(() => {
+      console.error("Unable to remove an uncommitted upload");
+    });
+  }
+
+  let statusCode = err.statusCode || 500;
+  let message = err.message || "Oh no, something went wrong.";
+  if (err.name === "CastError") {
+    statusCode = 404;
+    message = "The requested resource does not exist.";
+  } else if (err.name === "ValidationError") {
+    statusCode = 400;
+    message = "The submitted data is invalid.";
+  } else if (err.name === "MulterError") {
+    statusCode = 400;
+    message = "The image upload is invalid or too large.";
+  }
+  if (statusCode >= 500 && process.env.NODE_ENV === "production") {
+    message = "Something went wrong. Please try again later.";
+  }
+  res.status(statusCode).render("error", { err: { message, statusCode } });
 });
 
-app.listen(8080, () => {
-  console.log("server is listening on port 8080");
-});
+async function startServer() {
+  await mongoose.connect(requireDatabaseUrl());
+  const port = process.env.PORT || 8080;
+  app.listen(port, () => console.log(`Server listening on port ${port}`));
+}
+
+if (require.main === module) {
+  startServer().catch((err) => {
+    console.error("Unable to connect to the database.");
+    process.exitCode = 1;
+  });
+}
+
+module.exports = app;

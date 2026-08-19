@@ -1,9 +1,14 @@
-# 🏡 Domus
+# Domus
 
+<<<<<<< HEAD
 Domus (Latin for "home") is a full-stack property rental platform built with Node.js, Express, and MongoDB. Users can sign up, list properties for rent, upload images, browse listings, and leave star-rated reviews — with full authentication and ownership-based authorization protecting who can edit or delete what.
+=======
+Domus is a Node.js and Express property-listing application. Users can sign up, sign in, create and manage their own listings, upload listing images, and leave or remove their own reviews.
+>>>>>>> 8b4b964 (harden app for production)
 
-## ✨ Features
+## Production foundation
 
+<<<<<<< HEAD
 - **User authentication** — sign up, log in, and log out with secure session-based auth (Passport.js + passport-local-mongoose)
 - **Authorization** — only a listing's owner can edit or delete it; only a review's author can delete it; protected routes redirect anonymous users to log in first (and return them to where they started afterward)
 - **Browse listings** — view all available stays in a responsive card grid
@@ -14,9 +19,19 @@ Domus (Latin for "home") is a full-stack property rental platform built with Nod
 - **Server-side validation** — listing and review data is validated with Joi before it touches the database
 - **Flash messages** — success/error feedback after actions like login, signup, or CRUD operations
 - **Custom error handling** — a centralized error handler and friendly error page for invalid requests, missing listings, or unmatched routes
+=======
+- Server-side Joi validation rejects malformed listing and review requests, including unexpected ownership fields.
+- Mongoose enforces core database integrity for listings and reviews.
+- Listing updates load, modify, validate, and save one document; `owner` and `reviews` are never accepted from the browser.
+- New Cloudinary uploads store both URL and public ID. Replacing or deleting a listing cleans up only assets in the `domus_DEV` folder. Failed Cloudinary cleanup is surfaced rather than silently ignored.
+- Sessions are stored in MongoDB, are not created for anonymous visitors, and use `httpOnly`, `sameSite=lax`, and production-only `secure` cookies.
+- Indexes support current ownership queries and future location/country filtering: `owner`, `location`, and `country` on listings; `author` on reviews.
+- The application handles invalid IDs, validation errors, Mongoose validation errors, upload errors, and unexpected failures through the shared error page without exposing production internals.
+>>>>>>> 8b4b964 (harden app for production)
 
-## 🛠️ Tech Stack
+## Setup
 
+<<<<<<< HEAD
 | Layer | Technology |
 |---|---|
 | Runtime | Node.js |
@@ -65,29 +80,45 @@ Domus/
 └── public/
     ├── css/                     # Custom stylesheets
     └── js/                      # Client-side form validation script
+=======
+Install dependencies with `npm install`, then set these environment variables in a local `.env` file (never commit it):
+
+```env
+ATLASDB_URL=mongodb://127.0.0.1:27017/domus
+SESSION_SECRET=replace-with-a-long-random-secret
+CLOUD_NAME=...
+CLOUD_API_KEY=...
+CLOUD_API_SECRET=...
+NODE_ENV=development
+# Optional: use explicit resolvers when mongodb+srv DNS is blocked locally
+DNS_SERVERS=1.1.1.1,8.8.8.8
+>>>>>>> 8b4b964 (harden app for production)
 ```
 
-## 🚀 Getting Started
+`SECRET` remains supported as a legacy session-secret name, but `SESSION_SECRET` is preferred. In production, set `NODE_ENV=production`; serve the application through HTTPS so secure session cookies work correctly.
 
-### Prerequisites
+Start the app:
 
+<<<<<<< HEAD
 - [Node.js](https://nodejs.org/) (v18+ recommended)
 - A [MongoDB Atlas](https://www.mongodb.com/atlas) cluster (or a local MongoDB instance)
 - A free [Cloudinary](https://cloudinary.com/) account (for image uploads)
+=======
+```bash
+npm start
+```
+>>>>>>> 8b4b964 (harden app for production)
 
-### Installation
+Visit `http://localhost:8080/listings`.
 
-1. Clone the repository
-   ```bash
-   git clone https://github.com/VishnuSatyam/Domus.git
-   cd Domus
-   ```
+## Tests
 
-2. Install dependencies
-   ```bash
-   npm install
-   ```
+```bash
+npm test
+npm run test:watch
+```
 
+<<<<<<< HEAD
 3. Create a `.env` file in the project root with the following variables:
    ```bash
    ATLASDB_URL=your_mongodb_connection_string
@@ -111,8 +142,25 @@ Domus/
    ```
    http://localhost:8080/listings
    ```
+=======
+The route tests use `mongodb-memory-server`, which creates a temporary database. They do not use the configured application database or a real Cloudinary account; Cloudinary deletion is mocked for the image-replacement test.
 
-## 🗺️ Routes
+## Maintenance scripts
+
+The historical owner-backfill migration is retained for databases created before listings had required owners. It uses `ATLASDB_URL` and refuses to run unless explicitly confirmed:
+>>>>>>> 8b4b964 (harden app for production)
+
+```bash
+CONFIRM_LISTING_OWNER_BACKFILL=true node utils/backfillListingOwners.js
+```
+
+It assigns ownerless listings to the first existing user, so inspect the target database and back it up before running it. The optional seed script also uses `ATLASDB_URL`; create a user first and specify its username:
+
+```bash
+SEED_OWNER_USERNAME=your-username node init/index.js
+```
+
+## Routes
 
 ### Listings
 
@@ -136,6 +184,7 @@ Domus/
 ### Auth
 
 | Method | Route | Description |
+<<<<<<< HEAD
 |---|---|---|
 | GET | `/signup` | Sign-up form |
 | POST | `/signup` | Register a new user |
@@ -155,3 +204,12 @@ Contributions, issues, and feature requests are welcome. Feel free to open a pul
 ## 📄 License
 
 This project is licensed under the ISC License.
+=======
+| --- | --- | --- |
+| GET | `/listings` | Browse listings |
+| POST | `/listings` | Create a listing (authenticated) |
+| GET | `/listings/:id` | View a listing and reviews |
+| PUT / DELETE | `/listings/:id` | Update or delete the owner’s listing |
+| POST | `/listings/:id/reviews` | Create a review (authenticated) |
+| DELETE | `/listings/:id/reviews/:reviewId` | Delete the review author’s review |
+>>>>>>> 8b4b964 (harden app for production)
